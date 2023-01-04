@@ -21,12 +21,12 @@ export default function Home() {
       <main className={styles.main}>
         <Header />
         <h1 className={styles.text}>Hello there, I am</h1>
-        <p className={styles.title}>ANDREA D'ATTERO</p>
-        <p className={styles.subtitle}>I am a Software Engineer and I specialize in building, designing and engineering full stack applications across all devices. Currently I am developing applications for financial advisory at <a className='highlight' href='https://www.credit-suisse.com/ch/it.html' target="_blank" rel="noreferrer">Credit Suisse</a>.</p>
-        <div className='row'>
-          <Link href="https://github.com/datteroandrea" target="_blank" rel="noreferrer"><BsGithub className='icon' size={30} color="#2C74B3" /></Link>
-          <Link href="https://www.instagram.com/andrea.dattero/" target="_blank" rel="noreferrer"><BsInstagram className='icon' size={30} color="#2C74B3" /></Link>
-          <Link href="https://www.linkedin.com/in/andrea-dattero-798990174" target="_blank" rel="noreferrer"><BsLinkedin className='icon' size={30} color="#2C74B3" /></Link>
+        <p className={styles.title}>ANDREA D&apos;ATTERO</p>
+        <p className={styles.subtitle}>I am a Software Engineer and I specialize in building, designing and engineering full stack applications across all devices. Currently I am developing applications for financial advisory at <a className="highlight" href="https://www.credit-suisse.com/ch/it.html" target="_blank" rel="noreferrer">Credit Suisse</a>.</p>
+        <div className="row">
+          <Link href="https://github.com/datteroandrea" target="_blank" rel="noreferrer"><BsGithub className="icon" size={30} color="#2C74B3" /></Link>
+          <Link href="https://www.instagram.com/andrea.dattero/" target="_blank" rel="noreferrer"><BsInstagram className="icon" size={30} color="#2C74B3" /></Link>
+          <Link href="https://www.linkedin.com/in/andrea-dattero-798990174" target="_blank" rel="noreferrer"><BsLinkedin className="icon" size={30} color="#2C74B3" /></Link>
         </div>
       </main>
     </>

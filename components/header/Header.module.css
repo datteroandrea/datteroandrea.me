@@ -1,0 +1,37 @@
+
+
+.header {
+    display: flex;
+    flex-flow: row wrap;
+    height: 120px;
+    width: 100vw;
+    background-color: var(--primary);
+    padding: 40px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.items {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: row wrap;
+    gap: 20px;
+    color: var(--secondary);
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 40px;
+    border: 2px solid rgb(44, 116, 179);
+    color: rgb(44, 116, 179);
+    border-radius: 5px;
+}
+
+.button:hover {
+    background-color: rgb(44, 116, 179, .25);
+}

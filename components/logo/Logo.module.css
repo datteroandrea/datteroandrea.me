@@ -1,0 +1,23 @@
+
+.logo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2.5px solid var(--secondary);
+    border-radius: 20px;
+}
+
+.d {
+    position: absolute;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--secondary);
+}
+
+.logo:hover {
+    cursor: pointer;
+    background-color: rgba(44, 116, 179, 0.25);
+}

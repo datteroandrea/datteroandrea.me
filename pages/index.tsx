@@ -44,7 +44,7 @@ export default function Home() {
         </section>
         <section id='contact'>
           <h1 className={styles.title}>Get In Touch</h1>
-          <p style={{ maxWidth: "550px" }}>My inbox is always open for new adventures or business related inquiries!<br />Even though I am busy at the moment I will always try my best ro reply to you as soon as possible!</p>
+          <p style={{ maxWidth: "550px" }}>My inbox is always open for new adventures or business related inquiries.<br />Even though I am busy at the moment I will always try my best to reply to you as soon as possible!</p>
           <a className="contactButton" href="mailto:contact@datteroandrea.me" target="_blank" rel="noreferrer">Say Hello!</a>
         </section>
       </main>

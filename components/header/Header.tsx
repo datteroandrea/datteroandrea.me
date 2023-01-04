@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Logo from "../logo/Logo";
 import styles from "./Header.module.css";
 
@@ -10,7 +11,7 @@ export default function Header(props: any) {
             <a>Services</a>
             <a>Projects</a>
             <a>Contact</a>
-            <a className={styles.button}>Resume</a>
+            <Link className={styles.button} href="/resume.pdf">Resume</Link>
         </div>
     </header>;
 }

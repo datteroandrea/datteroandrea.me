@@ -1,13 +1,10 @@
 - Home
-    - About
-        - Who am I?
-        - What do I do?
-        - Social (GitHub, Instagram, Linkedin)
     - Services
-        - Build your application
+        - Add contact when clicking button
+        - Fix scroll on mobile
     - Projects
     - Contact
-    - Resume
+        - Use a form and API to send email
 - Inspiration:
     - https://brittanychiang.com/
     - https://jonny.me/

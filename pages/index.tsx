@@ -4,6 +4,8 @@ import { Inter } from '@next/font/google'
 import styles from '../styles/Home.module.css'
 import Logo from '../components/logo/Logo'
 import Header from '../components/header/Header'
+import { BsGithub, BsInstagram, BsLinkedin } from "react-icons/bs"
+import Link from 'next/link'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,8 +18,16 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Header />
       <main className={styles.main}>
+        <Header />
+        <h1 className={styles.text}>Hello there, I am</h1>
+        <p className={styles.title}>ANDREA D'ATTERO</p>
+        <p className={styles.subtitle}>I am a Software Engineer and I specialize in building, designing and engineering full stack applications across all devices. Currently I am developing applications for financial advisory at <a className='highlight' href='https://www.credit-suisse.com/ch/it.html' target="_blank">Credit Suisse</a>.</p>
+        <div className='row'>
+          <Link href="https://github.com/datteroandrea"><BsGithub className='icon' size={30} color="#2C74B3" /></Link>
+          <Link href="https://www.instagram.com/andrea.dattero/"><BsInstagram className='icon' size={30} color="#2C74B3" /></Link>
+          <Link href="https://www.linkedin.com/in/andrea-dattero-798990174"><BsLinkedin className='icon' size={30} color="#2C74B3" /></Link>
+        </div>
       </main>
     </>
   )

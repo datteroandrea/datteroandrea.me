@@ -18,15 +18,19 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  height: 100%;
   background-color: var(--primary);
 }
 
 h1, h2, h3 {
   font-family: 'Inter';
+  color: #dfdcd1;
 }
 
 p {
   font-family: 'Roboto';
+  color: #dfdcd1;
+  text-align: center;
 }
 
 a {
@@ -39,4 +43,25 @@ a {
 a:hover {
   cursor: pointer;
   color: rgb(65, 153, 230);
+}
+
+.highlight {
+  color: rgb(65, 153, 230);
+  font-size: 16px;
+}
+
+.row {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 20px;
+  height: 100%;
+}
+
+.icon {
+  transition: .3s;
+}
+
+.icon:hover {
+  transform: scale(1.1);
+  cursor: pointer;
 }

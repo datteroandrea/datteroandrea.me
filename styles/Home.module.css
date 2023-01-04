@@ -4,24 +4,25 @@
   justify-content: space-between;
   align-items: center;
   gap: 20px;
+  padding-bottom: 20px;
 }
 
 .text {
-  font-family: "SF Mono","Fira Code","Fira Mono","Roboto Mono",monospace;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
   font-size: 20px;
   color: white;
 }
 
-.title {
+.name {
   font-size: 52px;
   font-family: 'Inter';
   font-weight: 900;
   text-transform: uppercase;
   background-image: radial-gradient(circle,
-    #e74c3c 0%,
-    #e67e22 29%,
-    #f1c40f 67%,
-    #2ecc71 100%);
+      #e74c3c 0%,
+      #e67e22 29%,
+      #f1c40f 67%,
+      #2ecc71 100%);
   background-size: auto auto;
   background-clip: border-box;
   background-size: 200% auto;
@@ -31,6 +32,12 @@
   -webkit-text-fill-color: transparent;
   animation: textclip 2s linear infinite;
   display: inline-block;
+}
+
+.title {
+  font-size: 38px;
+  font-family: 'Inter';
+  font-weight: 700;
 }
 
 .subtitle {

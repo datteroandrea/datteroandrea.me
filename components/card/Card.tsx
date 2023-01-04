@@ -6,7 +6,7 @@ export default function Card(props: any) {
         <div className={styles.cardOffer}>
         {
             props.offer?.map((off: any) => {
-                return <p className={styles.cardOfferText}>{off}</p>;
+                return <p key={off} className={styles.cardOfferText}>{off}</p>;
             })
         }
         </div>

@@ -1,15 +1,12 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
 import styles from '../styles/Home.module.css'
 import Header from '../components/header/Header'
 import { BsGithub, BsInstagram, BsLinkedin } from "react-icons/bs"
 import Link from 'next/link'
 import Card from '../components/card/Card'
 
-const inter = Inter({ subsets: ['latin'] })
-
 export default function Home() {
+
   return (
     <>
       <Head>

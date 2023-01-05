@@ -75,7 +75,7 @@ a:hover {
   display: flex;
   flex-flow: row wrap;
   gap: 20px;
-  justify-content: start;
+  justify-content: flex-start;
 }
 
 .icon {

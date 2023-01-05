@@ -20,6 +20,7 @@ body {
   overflow-x: hidden;
   height: 100%;
   background-color: var(--primary);
+  scroll-behavior: smooth;
 }
 
 body::-webkit-scrollbar {
@@ -108,8 +109,11 @@ a:hover {
 section {
   display: flex;
   flex-flow: column;
-  align-items: center;
-  justify-content: center;
   gap: 20px;
   height: 600px;
+}
+
+.center {
+  align-items: center;
+  justify-content: center;
 }

@@ -9,7 +9,7 @@ export default function Header(props: any) {
         <div className={styles.items}>
             <a href="#about">About</a>
             <a href="#services">Services</a>
-            <a href="#projects">Projects</a>
+            {/*<a href="#projects">Projects</a>*/}
             <a href="#contact">Contact</a>
             <Link className={styles.button} href="/resume.pdf">Resume</Link>
         </div>

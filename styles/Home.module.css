@@ -47,6 +47,41 @@
   padding-right: 10px;
 }
 
+.services {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  align-items: center;
+  height: 460px;
+  width: 1300px;
+  max-width: 2000px;
+  min-width: 300px;
+}
+
+@media only screen and (max-width: 630px) {
+  .services {
+    width: 360px;
+    justify-content: flex-start;
+  }
+}
+
+@media only screen and (min-width: 631px) and (max-width: 1200px) {
+  .services {
+    width: 600px;
+    justify-content: flex-start;
+  }
+}
+
+@media only screen and (min-width: 1101px) {
+  .services {
+    width: 1300px;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 @keyframes textclip {
   to {
     background-position: 200% center;

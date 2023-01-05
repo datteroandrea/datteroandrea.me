@@ -7,11 +7,12 @@
     padding: 20px;
     background-color: white;
     border-radius: 10px;
-    min-width: 330px;
+    min-width: 310px;
     min-height: 420px;
-    max-width: 330px;
+    max-width: 310px;
     max-height: 420px;
     transition: .3s;
+    gap: 10px;
 }
 
 .card:hover {

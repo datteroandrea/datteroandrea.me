@@ -19,7 +19,7 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <Header />
-        <section id='about'>
+        <section className="center" id='about'>
           <h1 className={styles.text}>Hello there, I am</h1>
           <p className={styles.name}>ANDREA D&apos;ATTERO</p>
           <p className={styles.subtitle}>I am a Software Engineer and I specialize in building, designing and engineering full stack applications across all devices. Currently I am developing applications for financial advisory at <a className="highlight" href="https://www.credit-suisse.com/ch/it.html" target="_blank" rel="noreferrer">Credit Suisse</a>.</p>
@@ -29,20 +29,24 @@ export default function Home() {
             <Link href="https://www.linkedin.com/in/andrea-dattero-798990174" target="_blank" rel="noreferrer"><BsLinkedin className="icon" size={30} color="#2C74B3" /></Link>
           </section>
         </section>
-        <section id='services'>
+        <section className="center" id='services'>
           <h1 className={styles.title}>Services</h1>
-          <section style={{ display: "flex", flexDirection: "row", overflowX: "auto", overflowY: "hidden", height: "550px", width: "1100px" }}>
-            <Card title="Small Application" price="Starts at 100.0 CHF" offer={["Maximum of 10 Pages", "Static Website", "No API", "No Database", "No Additional Services"]} />
-            <Card title="Medium Application" price="Starts at 1000.0 CHF" offer={["Maximum of 20 Pages", "Static and Dynamic Website", "Small API", "Small Database", "No Additional Services"]} />
-            <Card title="Large Applicication" price="Contact me!" offer={["Unlimited Number of Pages", "Static and Dynamic Website", "Large API", "Large Database", "Search Engine Optimization, Backups, Live Chat, etc."]} />
+          <section className={styles.services}>
+            <Card title="Small Application" price="Starts at 100.0 CHF" offer={["Static Website", "No API", "No Database", "No Additional Services"]} onClick={() => document.getElementById("contact")?.scrollIntoView()} />
+            <Card title="Medium Application" price="Starts at 1000.0 CHF" offer={["Static and Dynamic Website", "Small API", "Small Database", "No Additional Services"]} onClick={() => document.getElementById("contact")?.scrollIntoView()} />
+            <Card title="Large Application" price="Contact me!" offer={["Static and Dynamic Website", "Large API", "Large Database", "Search Engine Optimization, Backups, Live Chat, etc."]} onClick={() => document.getElementById("contact")?.scrollIntoView()} />
           </section>
         </section>
-        <section id='projects'>
-          <h1 className={styles.title}>Projects</h1>
-          <section className="row">
+        {
+          /*
+          <section className="center" id='projects'>
+            <h1 className={styles.title}>Projects</h1>
+            <section className="row">
+            </section>
           </section>
-        </section>
-        <section id='contact'>
+          */
+        }
+        <section className="center" id='contact'>
           <h1 className={styles.title}>Get In Touch</h1>
           <p style={{ maxWidth: "550px" }}>My inbox is always open for new adventures or business related inquiries.<br />Even though I am busy at the moment I will always try my best to reply to you as soon as possible!</p>
           <a className="contactButton" href="mailto:contact@datteroandrea.me" target="_blank" rel="noreferrer">Say Hello!</a>

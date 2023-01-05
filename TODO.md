@@ -1,7 +1,4 @@
 - Home
-    - Services
-        - Add contact when clicking button
-        - Fix scroll on mobile
     - Projects
     - Contact
         - Use a form and API to send email

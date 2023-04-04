@@ -11,7 +11,7 @@ export default function Header(props: any) {
             <a href="#services">Services</a>
             {/*<a href="#projects">Projects</a>*/}
             <a href="#contact">Contact</a>
-            <Link className={styles.button} href="/resume.pdf">Resume</Link>
+            <Link className={styles.button} href="https://docs.google.com/document/d/1SmIoLIdjL8PdarIC08DrBpeFXNC5ZjMJCmrSkujhty4/edit?usp=sharing">Resume</Link>
         </div>
     </header>;
 }

@@ -80,6 +80,7 @@ a:hover {
 
 .icon {
   transition: .3s;
+  max-height: 30px;
 }
 
 .icon:hover {

@@ -26,14 +26,6 @@ export default function Home() {
             <Link href="https://www.linkedin.com/in/andrea-dattero-798990174" target="_blank" rel="noreferrer"><BsLinkedin className="icon" size={30} color="#2C74B3" /></Link>
           </section>
         </section>
-        <section className="center" id='services'>
-          <h1 className={styles.title}>Services</h1>
-          <section className={styles.services}>
-            <Card title="Small Application" price="Starts at 100.0 CHF" offer={["Static Website", "No API", "No Database", "No Additional Services"]} onClick={() => document.getElementById("contact")?.scrollIntoView()} />
-            <Card title="Medium Application" price="Starts at 1000.0 CHF" offer={["Static and Dynamic Website", "Small API", "Small Database", "No Additional Services"]} onClick={() => document.getElementById("contact")?.scrollIntoView()} />
-            <Card title="Large Application" price="Contact me!" offer={["Static and Dynamic Website", "Large API", "Large Database", "Search Engine Optimization, Backups, Live Chat, etc."]} onClick={() => document.getElementById("contact")?.scrollIntoView()} />
-          </section>
-        </section>
         {
           /*
           <section className="center" id='projects'>

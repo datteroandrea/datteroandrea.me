@@ -1,0 +1,40 @@
+.section {
+  background: var(--bg-alt);
+  padding-block: 96px;
+  border-top: 1px solid var(--border);
+}
+
+.inner {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.heading {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.body p {
+  font-size: 1.0625rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+}

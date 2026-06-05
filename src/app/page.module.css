@@ -1,0 +1,22 @@
+.footer {
+  background: var(--bg-alt);
+  border-top: 1px solid var(--border);
+  padding-block: 28px;
+}
+
+.footerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.footerLink {
+  transition: color 0.15s ease;
+}
+
+.footerLink:hover {
+  color: var(--text);
+}

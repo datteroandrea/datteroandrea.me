@@ -1,0 +1,26 @@
+﻿Andrea D’Attero
+Zurich, Switzerland | dattero.andrea00@gmail.com | datteroandrea.me | github.com/datteroandrea | linkedin.com/in/andrea-dattero-798990174 
+Skills
+* Programming: Java, JavaScript, TypeScript, Python, C#, Dart, Bash
+* Frontend: React, Angular, Next.js, React Native, Flutter, Three.js
+* Backend: Node.js, Express, Spring Boot, .NET, Socket.io
+* DevOps/Cloud: Docker, Azure, Jenkins, Nginx, Vercel, Netlify, DigitalOcean
+* Databases: MySQL, PostgreSQL, MongoDB, MSSQL, Redis
+* Other: HTML, CSS, SCSS, Cypress, Selenium, Puppeteer, Pandas, NumPy, Scikit
+* Languages: Italian (native), English (Fluent)
+Experience
+UBS | Zurich, CH — Software Engineer (April 2024 – Present)
+* Developed & maintained a full stack application for trading & settlement of securities.
+* Maintained and supported legacy Credit Suisse applications during UBS merger.
+* Built Jenkins pipelines for deployments across DEV, UAT, PROD.
+Credit Suisse | Zurich, CH — Software Engineer  & Scrum Master (October 2022 – April 2024)
+* Handled Scrum Master activities and requirements engineering tasks.
+* Developed & maintained full stack application for financial advisory and trading used by 1M+ clients.
+* Organized events as a board member of the Career Starter Committee.
+Projects
+Gridscript — Founder & Sole Engineer (July 2025 – Present)
+* Architected and built the full-stack web application Gridscript.io in Next.js from the ground up as the only engineer
+* Designed a browser-based data workspace that blends the familiarity of a spreadsheet with the power of scripting (JavaScript & Python) and visualization. 
+* Developed features including: Excel/CSV import, interactive grid editing (filter, sort, join, split, remove rows/columns) via no-code tools, a full scripting editor for JS/Python, creation of AI/ML models: in JavaScript via Tensorflow.js and in Python via Scikit‑learn (together with numpy/pandas) inside pipelines. 
+Education
+Ca’ Foscari University, Venice — Bachelor of Computer Science (2019 – 2022)

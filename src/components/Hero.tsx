@@ -38,7 +38,7 @@ export default function Hero() {
               View my work
             </a>
             <a
-              href="/resume.pdf"
+              href="https://docs.google.com/document/d/1xL6ZeHVIzjfw8SphNEMQku1CZzcd6pduB75Qo8Te5D0/edit?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.ctaSecondary}

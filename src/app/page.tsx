@@ -26,7 +26,7 @@ export default function Page() {
           <div className={styles.footerInner}>
             <span>© 2026 Andrea D&apos;Attero</span>
             <a
-              href="/resume.pdf"
+              href="https://docs.google.com/document/d/1xL6ZeHVIzjfw8SphNEMQku1CZzcd6pduB75Qo8Te5D0/edit?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.footerLink}

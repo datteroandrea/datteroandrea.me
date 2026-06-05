@@ -3,6 +3,16 @@ import styles from "./Projects.module.css";
 
 const PROJECTS = [
   {
+    name: "Prep & Rehab",
+    tagline: "Mobile physiotherapy platform for Zürich",
+    description:
+      "Designed and built the full digital stack for a Zürich-based mobile physiotherapy practice — public marketing site with integrated booking flow, an internal CRM for patient records and appointment management, and end-to-end company infrastructure setup. The practice specialises in orthopaedic rehabilitation, pelvic floor therapy, and geriatric care, all delivered in patients' homes.",
+    tags: ["Next.js", "TypeScript", "Supabase"],
+    url: "https://prep-rehab.ch",
+    role: "Freelance Full-Stack Developer",
+    period: "2026",
+  },
+  {
     name: "Gridscript",
     tagline: "Browser-based data workspace",
     description:

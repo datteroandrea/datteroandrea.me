@@ -4,6 +4,7 @@ import Highlights from "@/components/Highlights";
 import Projects from "@/components/Projects";
 import About from "@/components/About";
 import Skills from "@/components/Skills";
+import NotesSection from "@/components/NotesSection";
 import Experience from "@/components/Experience";
 import Contact from "@/components/Contact";
 import styles from "./page.module.css";
@@ -18,6 +19,7 @@ export default function Page() {
         <Projects />
         <About />
         <Skills />
+        <NotesSection />
         <Experience />
         <Contact />
       </main>

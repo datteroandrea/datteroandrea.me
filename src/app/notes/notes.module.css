@@ -1,0 +1,200 @@
+.main {
+  padding-top: 120px;
+  padding-bottom: 96px;
+  min-height: 70vh;
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding-block: 32px;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* ─── Index page ─────────────────────────────────────────────────────────── */
+
+.pageHeader {
+  margin-bottom: 56px;
+  max-width: 640px;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.pageTitle {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.lead {
+  font-size: 1.0625rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.inlineLink {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.inlineLink:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.empty {
+  color: var(--text-muted);
+}
+
+.categories {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.categoryName {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.noteList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .noteList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .noteList {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.noteCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--text);
+  font-weight: 500;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.noteCard:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.noteTitle {
+  line-height: 1.4;
+}
+
+.noteArrow {
+  color: var(--text-muted);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.noteCard:hover .noteArrow {
+  color: var(--accent);
+  transform: translateX(3px);
+}
+
+/* ─── Note page ──────────────────────────────────────────────────────────── */
+
+.article {
+  max-width: 768px;
+  margin-inline: auto;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 40px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.15s ease;
+}
+
+.backLink:hover {
+  color: var(--accent);
+}
+
+/* ─── Loading skeleton ───────────────────────────────────────────────────── */
+
+.skeletonHeader {
+  height: 120px;
+  max-width: 480px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  margin-bottom: 56px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .skeletonGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.skeletonCard {
+  height: 62px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

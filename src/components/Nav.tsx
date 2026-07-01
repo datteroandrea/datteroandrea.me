@@ -6,11 +6,12 @@ import ThemeToggle from "./ThemeToggle";
 import styles from "./Nav.module.css";
 
 const NAV_LINKS = [
-  { href: "#work", label: "Work" },
-  { href: "#about", label: "About" },
-  { href: "#skills", label: "Skills" },
-  { href: "#experience", label: "Experience" },
-  { href: "#contact", label: "Contact" },
+  { href: "/#work", label: "Work" },
+  { href: "/#about", label: "About" },
+  { href: "/#skills", label: "Skills" },
+  { href: "/#experience", label: "Experience" },
+  { href: "/notes", label: "Notes" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export default function Nav() {

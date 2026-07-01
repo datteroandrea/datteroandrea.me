@@ -1,0 +1,165 @@
+.prose {
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.75;
+  overflow-wrap: break-word;
+}
+
+/* ─── Headings ───────────────────────────────────────────────────────────── */
+
+.prose :global(h1),
+.prose :global(h2),
+.prose :global(h3),
+.prose :global(h4),
+.prose :global(h5),
+.prose :global(h6) {
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+  scroll-margin-top: 96px;
+}
+
+.prose :global(h1) {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  margin-top: 0;
+}
+
+.prose :global(h2) {
+  font-size: 1.5rem;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border);
+}
+
+.prose :global(h3) {
+  font-size: 1.25rem;
+}
+
+.prose :global(h4) {
+  font-size: 1.0625rem;
+}
+
+/* ─── Text blocks ────────────────────────────────────────────────────────── */
+
+.prose :global(p),
+.prose :global(ul),
+.prose :global(ol),
+.prose :global(blockquote),
+.prose :global(table),
+.prose :global(pre) {
+  margin-bottom: 1.25em;
+}
+
+.prose :global(a) {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose :global(a:hover) {
+  color: var(--accent-hover);
+}
+
+.prose :global(strong) {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.prose :global(ul),
+.prose :global(ol) {
+  padding-left: 1.5em;
+}
+
+.prose :global(li) {
+  margin-bottom: 0.375em;
+}
+
+.prose :global(li)::marker {
+  color: var(--text-muted);
+}
+
+.prose :global(blockquote) {
+  border-left: 3px solid var(--accent);
+  padding: 0.25em 0 0.25em 1em;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.prose :global(hr) {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.5em 0;
+}
+
+.prose :global(img) {
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  margin: 1.5em 0;
+}
+
+/* ─── Code ───────────────────────────────────────────────────────────────── */
+
+.prose :global(code) {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 0.15em 0.4em;
+}
+
+.prose :global(pre) {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.prose :global(pre code) {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* ─── Tables ─────────────────────────────────────────────────────────────── */
+
+.prose :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  display: block;
+  overflow-x: auto;
+}
+
+.prose :global(th),
+.prose :global(td) {
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  text-align: left;
+}
+
+.prose :global(th) {
+  background: var(--surface);
+  font-weight: 600;
+}
+
+.prose :global(tr:nth-child(even)) {
+  background: var(--bg-alt);
+}
+
+/* ─── Task lists ─────────────────────────────────────────────────────────── */
+
+.prose :global(input[type="checkbox"]) {
+  margin-right: 0.5em;
+  accent-color: var(--accent);
+}
+
+.prose :global(li):has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: -1.5em;
+}

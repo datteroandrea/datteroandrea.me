@@ -2,21 +2,26 @@ import "server-only";
 
 /**
  * Data layer for the Notes section. Content is sourced live from the public
- * GitHub repository `datteroandrea/notes`.
+ * GitHub repository `datteroandrea/notes` via the jsDelivr CDN.
  *
- * The repository is public, so no credentials are required. If you make the
- * repo private (or start hitting the unauthenticated GitHub rate limit of 60
- * req/hour), set `GITHUB_NOTES_TOKEN` in the environment and it will be sent as
- * a Bearer token. Never hard-code a token in source.
+ * jsDelivr mirrors public GitHub repos with no API rate limit and global edge
+ * caching, so no credentials are required:
+ *   - File listing: https://data.jsdelivr.com/v1/packages/gh/<owner>/<repo>@<ref>
+ *   - File content: https://cdn.jsdelivr.net/gh/<owner>/<repo>@<ref>/<path>
+ *
+ * Note: the repo must remain public (jsDelivr does not serve private repos), and
+ * branch refs (e.g. `@main`) may be cached by jsDelivr for up to ~12h. To make
+ * content updates instant, point NOTES_BRANCH at a specific commit SHA/tag.
  */
 
 export const NOTES_OWNER = "datteroandrea";
 export const NOTES_REPO = "notes";
 export const NOTES_BRANCH = "main";
 
-const RAW_ROOT = `https://raw.githubusercontent.com/${NOTES_OWNER}/${NOTES_REPO}/${NOTES_BRANCH}/`;
+const CDN_ROOT = `https://cdn.jsdelivr.net/gh/${NOTES_OWNER}/${NOTES_REPO}@${NOTES_BRANCH}/`;
+const LISTING_URL = `https://data.jsdelivr.com/v1/packages/gh/${NOTES_OWNER}/${NOTES_REPO}@${NOTES_BRANCH}`;
 
-// Re-fetch from GitHub at most once an hour (ISR). Notes change infrequently.
+// Re-fetch the listing at most once an hour (ISR). Notes change infrequently.
 const REVALIDATE_SECONDS = 3600;
 
 export type NoteFile = {
@@ -36,24 +41,28 @@ export type NoteCategory = {
   notes: NoteFile[];
 };
 
-type GitHubTreeEntry = {
-  path: string;
-  type: "blob" | "tree";
-};
+type JsDelivrEntry =
+  | { type: "file"; name: string; hash?: string; size?: number }
+  | { type: "directory"; name: string; files?: JsDelivrEntry[] };
 
-type GitHubTreeResponse = {
-  tree?: GitHubTreeEntry[];
+type JsDelivrListing = {
+  files?: JsDelivrEntry[];
+  status?: string;
   message?: string;
 };
 
-function authHeaders(): Record<string, string> {
-  const token = process.env.GITHUB_NOTES_TOKEN;
-  const headers: Record<string, string> = {
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-  };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  return headers;
+/** Recursively flatten jsDelivr's nested tree into full file paths. */
+function flattenPaths(entries: JsDelivrEntry[], prefix = ""): string[] {
+  const paths: string[] = [];
+  for (const entry of entries) {
+    const path = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.type === "directory") {
+      paths.push(...flattenPaths(entry.files ?? [], path));
+    } else {
+      paths.push(path);
+    }
+  }
+  return paths;
 }
 
 function humanize(segment: string): string {
@@ -66,34 +75,32 @@ function humanize(segment: string): string {
 }
 
 /**
- * Fetch the full recursive tree of the notes repo and return every markdown
- * file grouped by its top-level directory.
+ * Fetch the full tree of the notes repo from jsDelivr and return every
+ * markdown file grouped by its top-level directory.
  */
 export async function getNoteCategories(): Promise<NoteCategory[]> {
-  const res = await fetch(
-    `https://api.github.com/repos/${NOTES_OWNER}/${NOTES_REPO}/git/trees/${NOTES_BRANCH}?recursive=1`,
-    { headers: authHeaders(), next: { revalidate: REVALIDATE_SECONDS } },
-  );
+  const res = await fetch(LISTING_URL, {
+    next: { revalidate: REVALIDATE_SECONDS },
+  });
 
   if (!res.ok) {
     throw new Error(
-      `Failed to load notes tree from GitHub (${res.status} ${res.statusText})`,
+      `Failed to load notes listing from jsDelivr (${res.status} ${res.statusText})`,
     );
   }
 
-  const data = (await res.json()) as GitHubTreeResponse;
-  const entries = data.tree ?? [];
+  const data = (await res.json()) as JsDelivrListing;
+  const paths = flattenPaths(data.files ?? []).filter((p) =>
+    p.toLowerCase().endsWith(".md"),
+  );
 
   const byCategory = new Map<string, NoteCategory>();
 
-  for (const entry of entries) {
-    if (entry.type !== "blob") continue;
-    if (!entry.path.toLowerCase().endsWith(".md")) continue;
-
-    const slug = entry.path.replace(/\.md$/i, "").split("/");
+  for (const path of paths) {
+    const slug = path.replace(/\.md$/i, "").split("/");
     const key = slug.length > 1 ? slug[0] : "";
     const note: NoteFile = {
-      path: entry.path,
+      path,
       slug,
       title: humanize(slug[slug.length - 1]),
     };
@@ -145,7 +152,7 @@ export async function getNote(slug: string[]): Promise<Note | null> {
   const match = notes.find((n) => n.path === path);
   if (!match) return null;
 
-  const res = await fetch(RAW_ROOT + encodeURI(path), {
+  const res = await fetch(CDN_ROOT + encodeURI(path), {
     next: { revalidate: REVALIDATE_SECONDS },
   });
   if (!res.ok) return null;
@@ -156,7 +163,7 @@ export async function getNote(slug: string[]): Promise<Note | null> {
 
 /**
  * Build a URL transformer for a note, used by the markdown renderer to:
- *  - resolve relative image/resource paths to raw.githubusercontent URLs
+ *  - resolve relative image/resource paths to the jsDelivr content CDN
  *  - rewrite relative links to other `.md` notes into internal /notes routes
  *  - leave anchors and absolute URLs untouched
  *  - strip dangerous protocols
@@ -188,6 +195,6 @@ export function makeNoteUrlResolver(notePath: string): (url: string) => string {
     if (resolved.toLowerCase().endsWith(".md")) {
       return `/notes/${resolved.slice(0, -3)}${hash}`;
     }
-    return `${RAW_ROOT}${encodeURI(resolved)}${hash}`;
+    return `${CDN_ROOT}${encodeURI(resolved)}${hash}`;
   };
 }

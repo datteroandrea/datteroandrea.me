@@ -6,6 +6,7 @@ import "server-only";
  *
  * jsDelivr mirrors public GitHub repos with no API rate limit and global edge
  * caching, so no credentials are required:
+ * 
  *   - File listing: https://data.jsdelivr.com/v1/packages/gh/<owner>/<repo>@<ref>
  *   - File content: https://cdn.jsdelivr.net/gh/<owner>/<repo>@<ref>/<path>
  *
@@ -19,7 +20,7 @@ export const NOTES_REPO = "notes";
 export const NOTES_BRANCH = "main";
 
 const CDN_ROOT = `https://cdn.jsdelivr.net/gh/${NOTES_OWNER}/${NOTES_REPO}@${NOTES_BRANCH}/`;
-const LISTING_URL = `https://data.jsdelivr.com/v1/packages/gh/${NOTES_OWNER}/${NOTES_REPO}@${NOTES_BRANCH}`;
+const LISTING_URL = `https://data.jsdelivr.com/v1/packages/gh/${NOTES_OWNER}/${NOTES_REPO}@HEAD`;
 
 // Re-fetch the listing at most once an hour (ISR). Notes change infrequently.
 const REVALIDATE_SECONDS = 3600;

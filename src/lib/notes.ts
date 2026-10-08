@@ -1,4 +1,5 @@
 import "server-only";
+import { splitNote, type NoteChapter, type SplitNote } from "./chapters";
 
 /**
  * Data layer for the Notes section. Content is sourced live from the public
@@ -13,14 +14,17 @@ import "server-only";
  * Note: the repo must remain public (jsDelivr does not serve private repos).
  * jsDelivr caches branch refs (`@main`) for hours and named refs like `@HEAD`
  * for up to a year, so both URLs are pinned to the latest commit SHA of
- * NOTES_BRANCH, resolved via the GitHub API (see `resolveNotesRef`). SHA URLs
- * are immutable, so jsDelivr can never serve a stale tree for them.
+ * NOTES_BRANCH (see `resolveNotesRef`). SHA URLs are immutable, so jsDelivr
+ * can never serve a stale tree for them.
  */
 
 export const NOTES_OWNER = "datteroandrea";
 export const NOTES_REPO = "notes";
 export const NOTES_BRANCH = "main";
 
+// Git's smart-HTTP ref advertisement (what `git clone` reads first): ~1 KB,
+// no token, and not subject to the REST API's 60 requests/hour limit.
+const GIT_REFS_URL = `https://github.com/${NOTES_OWNER}/${NOTES_REPO}.git/info/refs?service=git-upload-pack`;
 const COMMIT_URL = `https://api.github.com/repos/${NOTES_OWNER}/${NOTES_REPO}/commits/${NOTES_BRANCH}`;
 
 const cdnRoot = (ref: string) =>
@@ -29,40 +33,58 @@ const listingUrl = (ref: string) =>
   `https://data.jsdelivr.com/v1/packages/gh/${NOTES_OWNER}/${NOTES_REPO}@${ref}`;
 
 // Re-resolve the latest commit at most once an hour (ISR). Notes change
-// infrequently, and this keeps unauthenticated GitHub API usage at ~1 req/h.
+// infrequently.
 const REVALIDATE_SECONDS = 3600;
 
-/**
- * Resolve the latest commit SHA of NOTES_BRANCH. An optional `GITHUB_TOKEN`
- * env var raises the GitHub API rate limit (useful on shared serverless IPs).
- * Falls back to the branch name if GitHub is unreachable, which may be stale
- * but keeps the section working.
- */
-async function resolveNotesRef(): Promise<string> {
+const SHA = /^[0-9a-f]{40}$/i;
+
+async function shaFromGitRefs(): Promise<string | null> {
+  const res = await fetch(GIT_REFS_URL, {
+    next: { revalidate: REVALIDATE_SECONDS },
+  });
+  if (!res.ok) throw new Error(`git refs: ${res.status} ${res.statusText}`);
+  // Lines look like `003d<sha> refs/heads/main` (4-hex-digit length prefix).
+  const match = (await res.text()).match(
+    new RegExp(`([0-9a-f]{40}) refs/heads/${NOTES_BRANCH}\\n`),
+  );
+  return match?.[1] ?? null;
+}
+
+async function shaFromApi(): Promise<string | null> {
   const headers: HeadersInit = { Accept: "application/vnd.github.sha" };
+  // Optional: raises the REST API limit on shared serverless IPs.
   if (process.env.GITHUB_TOKEN) {
     headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
+  const res = await fetch(COMMIT_URL, {
+    headers,
+    cache: "force-cache",
+    next: { revalidate: REVALIDATE_SECONDS },
+  });
+  if (!res.ok) throw new Error(`GitHub API: ${res.status} ${res.statusText}`);
+  const sha = (await res.text()).trim();
+  return SHA.test(sha) ? sha : null;
+}
 
-  try {
-    const res = await fetch(COMMIT_URL, {
-      headers,
-      cache: "force-cache",
-      next: { revalidate: REVALIDATE_SECONDS },
-    });
-    if (res.ok) {
-      const sha = (await res.text()).trim();
-      if (/^[0-9a-f]{40}$/i.test(sha)) return sha;
+/**
+ * Resolve the latest commit SHA of NOTES_BRANCH, trying git's ref
+ * advertisement and then the GitHub API. Falls back to the branch name if
+ * both fail, which may be stale but keeps the section working.
+ */
+async function resolveNotesRef(): Promise<string> {
+  const errors: unknown[] = [];
+  for (const source of [shaFromGitRefs, shaFromApi]) {
+    try {
+      const sha = await source();
+      if (sha) return sha;
+    } catch (error) {
+      errors.push(error);
     }
-    console.warn(
-      `Failed to resolve notes commit SHA (${res.status} ${res.statusText}); falling back to @${NOTES_BRANCH}`,
-    );
-  } catch (error) {
-    console.warn(
-      `Failed to resolve notes commit SHA; falling back to @${NOTES_BRANCH}`,
-      error,
-    );
   }
+  console.warn(
+    `Failed to resolve notes commit SHA; falling back to @${NOTES_BRANCH}`,
+    ...errors,
+  );
   return NOTES_BRANCH;
 }
 
@@ -176,57 +198,219 @@ export async function getAllNotes(): Promise<NoteFile[]> {
   return categories.flatMap((c) => c.notes);
 }
 
-export type Note = {
-  path: string;
-  title: string;
-  content: string;
-  /** Commit SHA (or branch fallback) the content was fetched at. */
-  ref: string;
-};
+// Notes larger than this are split into one page per `## ` chapter (see
+// chapters.ts); rendered whole they approach Vercel's 19 MB page limit.
+const SPLIT_THRESHOLD_BYTES = 512 * 1024;
 
-/**
- * Fetch the raw markdown for a note identified by its URL slug segments.
- * Returns `null` if the note is not part of the repository (prevents fetching
- * arbitrary paths).
- */
-export async function getNote(slug: string[]): Promise<Note | null> {
-  const path = `${slug.join("/")}.md`;
+/** A note's markdown, or its chapters when it is large enough to be split. */
+type LoadedNote = string | SplitNote;
 
-  // Allow-list against the actual tree — this also blocks path traversal.
-  const notes = await getAllNotes();
-  const match = notes.find((n) => n.path === path);
-  if (!match) return null;
+// Next's data cache skips responses over 2 MB, so without this every chapter
+// page would re-download and re-parse its whole note. Entries are keyed by
+// commit SHA and dropped when it changes; the mutable branch fallback is only
+// trusted for REVALIDATE_SECONDS.
+let loadedRef = "";
+let loadedAt = 0;
+const loadedNotes = new Map<string, Promise<LoadedNote | null>>();
 
-  // Memoized by Next's fetch cache, so this matches the ref used for the tree.
-  const ref = await resolveNotesRef();
+async function fetchNote(path: string, ref: string): Promise<LoadedNote | null> {
   const res = await fetch(cdnRoot(ref) + encodeURI(path), {
     next: { revalidate: REVALIDATE_SECONDS },
   });
   if (!res.ok) return null;
 
   const content = await res.text();
-  return { path, title: match.title, content, ref };
+  if (content.length <= SPLIT_THRESHOLD_BYTES) return content;
+  return splitNote(content) ?? content;
 }
+
+function loadNote(path: string, ref: string): Promise<LoadedNote | null> {
+  const expired =
+    ref === NOTES_BRANCH && Date.now() - loadedAt > REVALIDATE_SECONDS * 1000;
+  if (ref !== loadedRef || expired) {
+    loadedNotes.clear();
+    loadedRef = ref;
+    loadedAt = Date.now();
+  }
+  let loaded = loadedNotes.get(path);
+  if (!loaded) {
+    // Don't remember failures (likely transient: the path is allow-listed).
+    loaded = fetchNote(path, ref).then(
+      (note) => {
+        if (note === null) loadedNotes.delete(path);
+        return note;
+      },
+      (error: unknown) => {
+        loadedNotes.delete(path);
+        throw error;
+      },
+    );
+    loadedNotes.set(path, loaded);
+  }
+  return loaded;
+}
+
+export type ChapterLink = { href: string; title: string };
+
+type NotePageBase = {
+  path: string;
+  /** Commit SHA (or branch fallback) the content was fetched at. */
+  ref: string;
+  /** Route of the note (or of a split note's overview), e.g. `/notes/math/calculus`. */
+  href: string;
+  noteTitle: string;
+};
+
+/** What a `/notes/...` route renders. */
+export type NotePage = NotePageBase &
+  (
+    | { kind: "note"; content: string }
+    | {
+        /** Landing page of a split note: intro, chapter list, Index. */
+        kind: "overview";
+        split: SplitNote;
+        chapters: ChapterLink[];
+      }
+    | {
+        kind: "chapter";
+        split: SplitNote;
+        chapter: NoteChapter;
+        prev: ChapterLink | null;
+        next: ChapterLink | null;
+      }
+  );
+
+/**
+ * Resolve a `/notes/...` route: either a note (`[..., "data-science"]`) or a
+ * chapter of a split note (`[..., "data-science", "12-deep-learning"]`).
+ * Returns `null` for anything that is not in the repository's tree, which
+ * prevents fetching arbitrary paths.
+ */
+export async function getNotePage(slug: string[]): Promise<NotePage | null> {
+  // Allow-list against the actual tree — this also blocks path traversal.
+  const notes = await getAllNotes();
+  const findNote = (segments: string[]) =>
+    segments.length > 0
+      ? notes.find((n) => n.path === `${segments.join("/")}.md`)
+      : undefined;
+
+  // Memoized by Next's fetch cache, so this matches the ref used for the tree.
+  const ref = await resolveNotesRef();
+
+  const note = findNote(slug);
+  if (note) {
+    const loaded = await loadNote(note.path, ref);
+    if (loaded === null) return null;
+
+    const base = basePage(note, ref);
+    if (typeof loaded === "string") {
+      return { ...base, kind: "note", content: loaded };
+    }
+    return {
+      ...base,
+      kind: "overview",
+      split: loaded,
+      chapters: loaded.chapters.map((c) => chapterLink(base.href, c)),
+    };
+  }
+
+  const parent = findNote(slug.slice(0, -1));
+  if (!parent) return null;
+  const loaded = await loadNote(parent.path, ref);
+  if (loaded === null || typeof loaded === "string") return null;
+
+  const chapters = loaded.chapters;
+  const index = chapters.findIndex((c) => c.slug === slug[slug.length - 1]);
+  if (index < 0) return null;
+
+  const base = basePage(parent, ref);
+  return {
+    ...base,
+    kind: "chapter",
+    split: loaded,
+    chapter: chapters[index],
+    prev: index > 0 ? chapterLink(base.href, chapters[index - 1]) : null,
+    next:
+      index < chapters.length - 1
+        ? chapterLink(base.href, chapters[index + 1])
+        : null,
+  };
+}
+
+function basePage(note: NoteFile, ref: string): NotePageBase {
+  return {
+    path: note.path,
+    ref,
+    href: `/notes/${note.slug.join("/")}`,
+    noteTitle: note.title,
+  };
+}
+
+function chapterLink(noteHref: string, chapter: NoteChapter): ChapterLink {
+  return { href: `${noteHref}/${chapter.slug}`, title: chapter.title };
+}
+
+/** Route slugs of every note and every chapter of a split note. */
+export async function getAllNoteSlugs(): Promise<string[][]> {
+  const [notes, ref] = await Promise.all([getAllNotes(), resolveNotesRef()]);
+  const slugs = await Promise.all(
+    notes.map(async (note) => {
+      const loaded = await loadNote(note.path, ref);
+      if (!loaded || typeof loaded === "string") return [note.slug];
+      return [
+        note.slug,
+        ...loaded.chapters.map((c) => [...note.slug, c.slug]),
+      ];
+    }),
+  );
+  return slugs.flat();
+}
+
+/** How links inside a note (or a section of a split note) are resolved. */
+export type NoteLinkContext = {
+  path: string;
+  ref: string;
+  /** Split notes: heading id → chapter slug (`""` for the overview). */
+  anchors?: Record<string, string>;
+  /** Split notes: slug of the chapter being rendered (`""` for the overview). */
+  chapter?: string;
+};
 
 /**
  * Build a URL transformer for a note, used by the markdown renderer to:
  *  - resolve relative image/resource paths to the jsDelivr content CDN
  *  - rewrite relative links to other `.md` notes into internal /notes routes
- *  - leave anchors and absolute URLs untouched
+ *  - point anchors in a split note at the chapter containing the heading
+ *  - leave other anchors and absolute URLs untouched
  *  - strip dangerous protocols
  */
-export function makeNoteUrlResolver(
-  notePath: string,
-  ref: string,
-): (url: string) => string {
+export function makeNoteUrlResolver({
+  path: notePath,
+  ref,
+  anchors,
+  chapter = "",
+}: NoteLinkContext): (url: string) => string {
   const dir = notePath.includes("/")
     ? notePath.slice(0, notePath.lastIndexOf("/"))
     : "";
+  const noteHref = `/notes/${notePath.slice(0, -3)}`;
+
+  const resolveAnchor = (hash: string): string => {
+    let id = hash.slice(1);
+    try {
+      id = decodeURIComponent(id);
+    } catch {
+      // Malformed escape — look the id up as written.
+    }
+    const target = anchors?.[id];
+    if (target === undefined || target === chapter) return hash;
+    return `${target ? `${noteHref}/${target}` : noteHref}${hash}`;
+  };
 
   return (url: string): string => {
     if (!url) return "";
     if (/^\s*(javascript|data|vbscript):/i.test(url)) return "";
-    if (url.startsWith("#")) return url;
+    if (url.startsWith("#")) return resolveAnchor(url);
     if (/^[a-z][a-z0-9+.-]*:/i.test(url) || url.startsWith("//")) return url;
 
     // Relative path — resolve against the note's directory.
@@ -242,6 +426,9 @@ export function makeNoteUrlResolver(
     }
     const resolved = stack.join("/");
 
+    if (resolved === notePath) {
+      return hash ? resolveAnchor(hash) : noteHref;
+    }
     if (resolved.toLowerCase().endsWith(".md")) {
       return `/notes/${resolved.slice(0, -3)}${hash}`;
     }

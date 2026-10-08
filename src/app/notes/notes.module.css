@@ -147,6 +147,82 @@
   color: var(--accent);
 }
 
+/* ─── Split notes: chapter list and pager ────────────────────────────────── */
+
+.chapters {
+  margin-block: 40px 56px;
+}
+
+.chaptersHeading {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.chapterList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .chapterList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.pager {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.pagerLink {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--text);
+  font-weight: 500;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pagerLink:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  box-shadow: var(--shadow-md);
+}
+
+.pagerLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+@media (min-width: 640px) {
+  .pager {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pagerNext {
+    grid-column: 2;
+    text-align: right;
+  }
+}
+
 /* ─── Loading skeleton ───────────────────────────────────────────────────── */
 
 .skeletonHeader {

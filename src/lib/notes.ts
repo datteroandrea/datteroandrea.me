@@ -10,20 +10,61 @@ import "server-only";
  *   - File listing: https://data.jsdelivr.com/v1/packages/gh/<owner>/<repo>@<ref>
  *   - File content: https://cdn.jsdelivr.net/gh/<owner>/<repo>@<ref>/<path>
  *
- * Note: the repo must remain public (jsDelivr does not serve private repos), and
- * branch refs (e.g. `@main`) may be cached by jsDelivr for up to ~12h. To make
- * content updates instant, point NOTES_BRANCH at a specific commit SHA/tag.
+ * Note: the repo must remain public (jsDelivr does not serve private repos).
+ * jsDelivr caches branch refs (`@main`) for hours and named refs like `@HEAD`
+ * for up to a year, so both URLs are pinned to the latest commit SHA of
+ * NOTES_BRANCH, resolved via the GitHub API (see `resolveNotesRef`). SHA URLs
+ * are immutable, so jsDelivr can never serve a stale tree for them.
  */
 
 export const NOTES_OWNER = "datteroandrea";
 export const NOTES_REPO = "notes";
 export const NOTES_BRANCH = "main";
 
-const CDN_ROOT = `https://cdn.jsdelivr.net/gh/${NOTES_OWNER}/${NOTES_REPO}@${NOTES_BRANCH}/`;
-const LISTING_URL = `https://data.jsdelivr.com/v1/packages/gh/${NOTES_OWNER}/${NOTES_REPO}@HEAD`;
+const COMMIT_URL = `https://api.github.com/repos/${NOTES_OWNER}/${NOTES_REPO}/commits/${NOTES_BRANCH}`;
 
-// Re-fetch the listing at most once an hour (ISR). Notes change infrequently.
+const cdnRoot = (ref: string) =>
+  `https://cdn.jsdelivr.net/gh/${NOTES_OWNER}/${NOTES_REPO}@${ref}/`;
+const listingUrl = (ref: string) =>
+  `https://data.jsdelivr.com/v1/packages/gh/${NOTES_OWNER}/${NOTES_REPO}@${ref}`;
+
+// Re-resolve the latest commit at most once an hour (ISR). Notes change
+// infrequently, and this keeps unauthenticated GitHub API usage at ~1 req/h.
 const REVALIDATE_SECONDS = 3600;
+
+/**
+ * Resolve the latest commit SHA of NOTES_BRANCH. An optional `GITHUB_TOKEN`
+ * env var raises the GitHub API rate limit (useful on shared serverless IPs).
+ * Falls back to the branch name if GitHub is unreachable, which may be stale
+ * but keeps the section working.
+ */
+async function resolveNotesRef(): Promise<string> {
+  const headers: HeadersInit = { Accept: "application/vnd.github.sha" };
+  if (process.env.GITHUB_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
+
+  try {
+    const res = await fetch(COMMIT_URL, {
+      headers,
+      cache: "force-cache",
+      next: { revalidate: REVALIDATE_SECONDS },
+    });
+    if (res.ok) {
+      const sha = (await res.text()).trim();
+      if (/^[0-9a-f]{40}$/i.test(sha)) return sha;
+    }
+    console.warn(
+      `Failed to resolve notes commit SHA (${res.status} ${res.statusText}); falling back to @${NOTES_BRANCH}`,
+    );
+  } catch (error) {
+    console.warn(
+      `Failed to resolve notes commit SHA; falling back to @${NOTES_BRANCH}`,
+      error,
+    );
+  }
+  return NOTES_BRANCH;
+}
 
 export type NoteFile = {
   /** Repository path, e.g. `computer-science/data-science.md`. */
@@ -80,7 +121,8 @@ function humanize(segment: string): string {
  * markdown file grouped by its top-level directory.
  */
 export async function getNoteCategories(): Promise<NoteCategory[]> {
-  const res = await fetch(LISTING_URL, {
+  const ref = await resolveNotesRef();
+  const res = await fetch(listingUrl(ref), {
     next: { revalidate: REVALIDATE_SECONDS },
   });
 
@@ -138,6 +180,8 @@ export type Note = {
   path: string;
   title: string;
   content: string;
+  /** Commit SHA (or branch fallback) the content was fetched at. */
+  ref: string;
 };
 
 /**
@@ -153,13 +197,15 @@ export async function getNote(slug: string[]): Promise<Note | null> {
   const match = notes.find((n) => n.path === path);
   if (!match) return null;
 
-  const res = await fetch(CDN_ROOT + encodeURI(path), {
+  // Memoized by Next's fetch cache, so this matches the ref used for the tree.
+  const ref = await resolveNotesRef();
+  const res = await fetch(cdnRoot(ref) + encodeURI(path), {
     next: { revalidate: REVALIDATE_SECONDS },
   });
   if (!res.ok) return null;
 
   const content = await res.text();
-  return { path, title: match.title, content };
+  return { path, title: match.title, content, ref };
 }
 
 /**
@@ -169,7 +215,10 @@ export async function getNote(slug: string[]): Promise<Note | null> {
  *  - leave anchors and absolute URLs untouched
  *  - strip dangerous protocols
  */
-export function makeNoteUrlResolver(notePath: string): (url: string) => string {
+export function makeNoteUrlResolver(
+  notePath: string,
+  ref: string,
+): (url: string) => string {
   const dir = notePath.includes("/")
     ? notePath.slice(0, notePath.lastIndexOf("/"))
     : "";
@@ -196,6 +245,6 @@ export function makeNoteUrlResolver(notePath: string): (url: string) => string {
     if (resolved.toLowerCase().endsWith(".md")) {
       return `/notes/${resolved.slice(0, -3)}${hash}`;
     }
-    return `${CDN_ROOT}${encodeURI(resolved)}${hash}`;
+    return `${cdnRoot(ref)}${encodeURI(resolved)}${hash}`;
   };
 }

@@ -10,6 +10,8 @@ type MarkdownProps = {
   content: string;
   /** Repository path of the note, used to resolve relative links and images. */
   notePath: string;
+  /** Commit SHA (or branch) of the notes repo the note was fetched at. */
+  noteRef: string;
 };
 
 /**
@@ -18,8 +20,8 @@ type MarkdownProps = {
  * tables/strikethrough/task-lists, heading anchors, and syntax highlighting are
  * enabled.
  */
-export default function Markdown({ content, notePath }: MarkdownProps) {
-  const urlTransform = makeNoteUrlResolver(notePath);
+export default function Markdown({ content, notePath, noteRef }: MarkdownProps) {
+  const urlTransform = makeNoteUrlResolver(notePath, noteRef);
 
   return (
     <div className={styles.prose}>

@@ -41,7 +41,7 @@ export default async function NotePage({
       <Link href="/notes" className={styles.backLink}>
         ← All notes
       </Link>
-      <Markdown content={note.content} notePath={note.path} />
+      <Markdown content={note.content} notePath={note.path} noteRef={note.ref} />
     </article>
   );
 }
